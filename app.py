@@ -148,35 +148,71 @@ st.write(df.isnull().sum())
 # -------------------------------------------------
 # CHARACTER TO NUMERIC
 # -------------------------------------------------
-st.header("4️⃣ Convert Character Columns to Numeric")
+# Convert categorical values into numeric
 
-st.markdown("""
-<div class="explain-box">
-<b>Why convert text to numbers?</b><br>
-Logistic Regression only understands numbers.
-So we convert:
-<ul>
-<li>Male → 1, Female → 0</li>
-<li>Yes → 1, No → 0</li>
-<li>Graduate → 1, Not Graduate → 0</li>
-</ul>
-</div>
-""", unsafe_allow_html=True)
-
-df['Gender'] = df['Gender'].replace({'Male':1,'Female':0})
-df['Married'] = df['Married'].replace({'Yes':1,'No':0})
-df['Education'] = df['Education'].replace({'Graduate':1,'Not Graduate':0})
-df['Self_Employed'] = df['Self_Employed'].replace({'Yes':1,'No':0})
-df['Property_Area'] = df['Property_Area'].replace({
-    'Rural':0,
-    'Semiurban':1,
-    'Urban':2
+df['Gender'] = df['Gender'].map({
+    'Male': 1,
+    'Female': 0
 })
-df['Loan_Status'] = df['Loan_Status'].replace({'Y':1,'N':0})
-df['Dependents'] = df['Dependents'].replace('3+', 3)
-df['Dependents'] = df['Dependents'].astype(int)
 
-df.drop("Loan_ID", axis=1, inplace=True)
+df['Married'] = df['Married'].map({
+    'Yes': 1,
+    'No': 0
+})
+
+df['Education'] = df['Education'].map({
+    'Graduate': 1,
+    'Not Graduate': 0
+})
+
+df['Self_Employed'] = df['Self_Employed'].map({
+    'Yes': 1,
+    'No': 0
+})
+
+df['Property_Area'] = df['Property_Area'].map({
+    'Rural': 0,
+    'Semiurban': 1,
+    'Urban': 2
+})
+
+# Fix Dependents
+df['Dependents'] = (
+    df['Dependents']
+    .astype(str)
+    .replace('3+', '3')
+)
+
+df['Dependents'] = pd.to_numeric(
+    df['Dependents'],
+    errors='coerce'
+)
+
+# Fix Loan_Status safely
+df['Loan_Status'] = (
+    df['Loan_Status']
+    .astype(str)
+    .str.strip()
+    .str.upper()
+)
+
+df['Loan_Status'] = df['Loan_Status'].map({
+    'Y': 1,
+    'N': 0
+})
+
+# Remove invalid target rows
+df = df.dropna(subset=['Loan_Status'])
+
+# Convert to int
+df['Loan_Status'] = df['Loan_Status'].astype(int)
+
+# Drop Loan_ID
+if 'Loan_ID' in df.columns:
+    df.drop("Loan_ID", axis=1, inplace=True)
+
+# Final cleanup
+df.dropna(inplace=True)
 
 st.write(df.head())
 
@@ -271,7 +307,9 @@ st.pyplot(fig)
 st.header("8️⃣ Train Test Split")
 
 X = df.drop("Loan_Status", axis=1)
-y = df["Loan_Status"]
+
+# Ensure target is integer
+y = df["Loan_Status"].astype(int)
 
 X_train, X_test, y_train, y_test = train_test_split(
     X,
