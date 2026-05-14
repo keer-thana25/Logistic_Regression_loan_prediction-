@@ -2,6 +2,10 @@
 
 This project predicts **loan approval status** using **Logistic Regression** and provides an interactive **Streamlit dashboard** for data visualization, preprocessing, model training, and prediction.
 
+## 🚀 Live Demo
+
+🌐 Live App: https://logistic-regression-loan-prediction.streamlit.app/
+
 ## 📌 Project Overview
 The goal of this project is to predict whether a loan will be:
 
@@ -42,9 +46,8 @@ based on applicant details such as:
 - Scikit-learn
 - Streamlit
 
-## ▶️ Run the Project
+---
 
-Install dependencies:
+## 👨‍💻 Author
 
-```bash
-pip install -r requirements.txt
+**Keerthana**
